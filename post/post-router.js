@@ -12,7 +12,7 @@ router.get('/', (req, res) => {
         res.status(200).json(post);
       })
       .catch(error => {
-        res.status(500).json({ message: 'error retrieving post' });
+        res.status(500).json({ error: "The posts information could not be retrieved." });
       });
   });
 
@@ -28,17 +28,17 @@ router.get('/', (req, res) => {
       } else {
         res
           .status(404)
-          .json({ message: "post Not found" });
+          .json({ message: "The post with the specified ID does not exist." });
       }
     })
     .catch(err =>
       res
         .status(500)
-        .json({ error: "There was an error while saving the post to the database" })
+        .json({ error: "The post information could not be retrieved." })
     );
 });
 
-// post
+// post / insert
   router.post("/", (req, res) => {
     const post = req.body;
   
@@ -62,10 +62,14 @@ router.get('/', (req, res) => {
     db
       .remove(id)
       .then(deleted => {
-          res.status(204).end();
+          if (deleted) {
+          res.status(204).end(); 
+        } else {
+            res.status(404).json({ message: "The post with the specified ID does not exist." });    
+        }
       })
       .catch(error => {
-        res.status(500).json({ message: 'Error deleting the user' });
+        res.status(500).json({ error: "The post could not be removed" });
       });
   });
 
@@ -81,12 +85,14 @@ router.put('/:id', (req, res) => {
     .then(updated => {
       if (updated) {
         res.status(200).json(updated);
+      } else if (!update.title || !update.comments){
+        res.status(400).json({ errorMessage: "Please provide title and contents for the post." });
       } else {
-        res.status(404).json({ message: 'user not found' });
-      }
+        res.status(404).json({ message: "The post with the specified ID does not exist." });
+      } 
     })
     .catch(error => {
-      res.status(500).json({ message: 'error updating user' });
+      res.status(500).json({ error: "The post information could not be modified." });
     });
 });
 
